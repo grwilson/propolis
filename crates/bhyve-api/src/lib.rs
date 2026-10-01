@@ -105,6 +105,31 @@ impl VmmCtlFd {
         Ok(req)
     }
 
+    /// Query VMM memory reservoir capacity and usage, including the capacity
+    /// of the boot-time rawmem pool.
+    ///
+    /// On kernels predating [`ApiVersion::V19`], this falls back to
+    /// `VMM_RESV_QUERY`, with the rawmem fields reported as 0.
+    pub fn reservoir_query2(&self) -> Result<vmm_resv_query2> {
+        if self.api_version()? < ApiVersion::V19 {
+            let q = self.reservoir_query()?;
+            return Ok(vmm_resv_query2 {
+                vrq_free_sz: q.vrq_free_sz,
+                vrq_alloc_sz: q.vrq_alloc_sz,
+                vrq_alloc_transient_sz: q.vrq_alloc_transient_sz,
+                vrq_limit: q.vrq_limit,
+                ..Default::default()
+            });
+        }
+
+        let mut req = vmm_resv_query2::default();
+
+        // Safety: We are using the appropriate struct for this ioctl
+        unsafe { self.ioctl(ioctls::VMM_RESV_QUERY2, &mut req) }?;
+
+        Ok(req)
+    }
+
     /// Destroy VM instance
     pub fn vm_destroy(&self, name: &[u8]) -> Result<()> {
         let mut req = vm_destroy_req::new(name)?;
@@ -541,6 +566,9 @@ unsafe fn ioctl(
 #[repr(u32)]
 #[derive(Copy, Clone)]
 pub enum ApiVersion {
+    /// Add `VMM_RESV_QUERY2` ioctl, reporting rawmem pool capacity
+    V19 = 19,
+
     /// Initial support for CPU perf. counters on AMD
     V18 = 18,
 
@@ -590,7 +618,7 @@ pub enum ApiVersion {
 }
 impl ApiVersion {
     pub const fn current() -> Self {
-        Self::V18
+        Self::V19
     }
 }
 

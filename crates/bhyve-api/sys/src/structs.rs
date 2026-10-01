@@ -567,6 +567,20 @@ pub struct vmm_resv_query {
     pub vrq_limit: size_t,
 }
 
+/// Superset of `vmm_resv_query`, returned by `VMM_RESV_QUERY2` (API V19+)
+#[repr(C)]
+#[derive(Copy, Clone, Default)]
+pub struct vmm_resv_query2 {
+    pub vrq_free_sz: size_t,
+    pub vrq_alloc_sz: size_t,
+    pub vrq_alloc_transient_sz: size_t,
+    pub vrq_limit: size_t,
+    /// Total capacity of the boot-time rawmem pool (0 if not configured)
+    pub vrq_rawmem_total_sz: size_t,
+    /// Free capacity of the boot-time rawmem pool (0 if not configured)
+    pub vrq_rawmem_free_sz: size_t,
+}
+
 #[repr(C)]
 #[derive(Copy, Clone, Default)]
 pub struct vmm_resv_target {

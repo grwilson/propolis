@@ -87,16 +87,20 @@ fn main() -> anyhow::Result<()> {
             do_resize(&ctl, sz * MB, chunk.unwrap_or(0))?;
         }
         Command::Query => {
-            let sz = ctl.reservoir_query()?;
+            let sz = ctl.reservoir_query2()?;
             println!(
                 "Free KiB:\t\t\t{}\n\
                 Allocated KiB:\t\t\t{}\n\
                 Transient Allocated KiB:\t{}\n\
-                Size limit KiB:\t\t\t{}",
+                Size limit KiB:\t\t\t{}\n\
+                Rawmem total KiB:\t\t{}\n\
+                Rawmem free KiB:\t\t{}",
                 sz.vrq_free_sz / 1024,
                 sz.vrq_alloc_sz / 1024,
                 sz.vrq_alloc_transient_sz / 1024,
-                sz.vrq_limit / 1024
+                sz.vrq_limit / 1024,
+                sz.vrq_rawmem_total_sz / 1024,
+                sz.vrq_rawmem_free_sz / 1024
             );
         }
     }

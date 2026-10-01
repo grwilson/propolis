@@ -111,6 +111,9 @@ fn main() {
         // API V16 saw the removal of the force-suspend flag for VM_REINIT
         "VM_REINIT_F_FORCE_SUSPEND" if ver_gt(15) => true,
 
+        // API V19 saw the addition of VMM_RESV_QUERY2
+        "VMM_RESV_QUERY2" if ver_lt(19) => true,
+
         _ => false,
     });
 
@@ -137,6 +140,9 @@ fn main() {
 
         // VMM_TIME struct added in API V11
         "vdi_time_info_v1" if ver_lt(11) => true,
+
+        // VMM_RESV_QUERY2 and its struct added in API V19
+        "vmm_resv_query2" if ver_lt(19) => true,
 
         _ => false,
     });
